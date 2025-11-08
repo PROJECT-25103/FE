@@ -1,0 +1,52 @@
+import React from "react";
+import { Menu } from "antd";
+import {
+  DashboardOutlined,
+  UserOutlined,
+  VideoCameraOutlined,
+  ScheduleOutlined,
+} from "@ant-design/icons";
+import { useNavigate, useLocation } from "react-router-dom";
+
+const SideBar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const menuItems = [
+    {
+      key: "/admin",
+      icon: <DashboardOutlined />,
+      label: "Dashboard",
+    },
+    {
+      key: "/admin/users",
+      icon: <UserOutlined />,
+      label: "Quản lý người dùng",
+    },
+    {
+      key: "/admin/movies",
+      icon: <VideoCameraOutlined />,
+      label: "Quản lý phim",
+    },
+    {
+      key: "/admin/showtimes",
+      icon: <ScheduleOutlined />,
+      label: "Quản lý suất chiếu",
+    },
+  ];
+
+  return (
+    <Menu
+      mode="inline"
+      selectedKeys={[location.pathname]}
+      onClick={({ key }) => navigate(key)}
+      items={menuItems}
+      style={{
+        height: "100%",
+        borderRight: 0,
+      }}
+    />
+  );
+};
+
+export default SideBar;
