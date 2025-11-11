@@ -10,7 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.17",
+    "@ant-design/icons": "^6.1.0",
+    "@tailwindcss/vite": "^4.1.16",
     "antd": "^5.27.6",
     "axios": "^1.13.1",
     "react": "^19.2.0",
