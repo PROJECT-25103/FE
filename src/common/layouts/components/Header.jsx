@@ -1,7 +1,6 @@
 import { Link, NavLink } from "react-router";
 
 const Header = () => {
-  
   const navItems = [
     {
       path: "/",
@@ -53,7 +52,7 @@ const Header = () => {
           </div>
         </div>
       </section>
-      <header className="py-4 shadow-lg sticky top-0">
+      <header className="py-4 shadow-lg sticky top-0 z-999 bg-white">
         <div className="flex items-center max-w-7xl xl:mx-auto justify-between">
           <h1 className="text-4xl font-bold m-0!">MPV</h1>
           <div>
