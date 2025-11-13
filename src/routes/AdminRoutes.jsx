@@ -1,7 +1,6 @@
 import AdminLayout from "../common/layouts/AdminLayout";
-import MainLayout from "../common/layouts/MainLayout";
 import DashboardPage from "../pages/admin/DashboardPage";
-import HomePage from "../pages/client/home/HomePage";
+import GenrePage from "../pages/admin/genre/GenrePage";
 
 export const AdminRoutes = [
   {
@@ -11,6 +10,10 @@ export const AdminRoutes = [
       {
         index: true,
         element: <DashboardPage />,
+      },
+      {
+        path: "genres", 
+        element: <GenrePage />,
       },
     ],
   },
