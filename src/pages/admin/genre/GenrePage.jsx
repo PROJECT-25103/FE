@@ -8,6 +8,7 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
+import GenreForm from "./GenreForm";
 
 const { Title } = Typography;
 
@@ -41,7 +42,7 @@ const GenrePage = () => {
   const handleSearch = (value) => {
     setSearchText(value);
     const filtered = genres.filter((item) =>
-      item.name.toLowerCase().includes(value.toLowerCase())
+      item.name.toLowerCase().includes(value.toLowerCase()),
     );
     setFilteredGenres(filtered);
   };
@@ -51,7 +52,7 @@ const GenrePage = () => {
       await axios.patch(`http://localhost:8000/api/genre/status/${genre._id}`, {
         status: !genre.status,
       });
-      message.success("Cập nhật trạng thái thành công!");
+      message.success(`Cập nhật trạng thái thành công!`);
       fetchGenres();
     } catch (error) {
       console.error(error);
@@ -136,7 +137,7 @@ const GenrePage = () => {
         pagination={{ pageSize: 5 }}
       />
 
-       <Modal
+      <Modal
         open={openModal}
         footer={null}
         onCancel={() => setOpenModal(false)}
@@ -147,7 +148,7 @@ const GenrePage = () => {
           onClose={() => setOpenModal(false)}
           refresh={fetchGenres}
         />
-      </Modal> 
+      </Modal>
     </div>
   );
 };
