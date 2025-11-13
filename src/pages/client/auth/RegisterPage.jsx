@@ -3,14 +3,17 @@ import { formRules } from "../../../common/utils/formRule";
 import { useMutation } from "@tanstack/react-query";
 import { registerService } from "../../../common/services/auth.service";
 import { useMessage } from "../../../common/hooks/useMessage";
+import { Link, useNavigate } from "react-router";
 
 const RegisterPage = () => {
+  const nav= useNavigate();
   const [form] = Form.useForm();
   const { HandleError, antdMessage } = useMessage();
   const { mutate, isPending } = useMutation({
     mutationFn: (payload) => registerService(payload),
     onSuccess: ({ message }) => {
       antdMessage.success(message);
+      nav("/auth/login");
     },
     onError: (err) => HandleError(err),
   });
@@ -147,7 +150,11 @@ const RegisterPage = () => {
           <p className="text-center">
             Bạn đã có tài khoản?{" "}
             <span className="text-primary cursor-pointer hover:underline">
+              <Link
+               to={"/auth/login"}
+               className="text-primary cursor-pointer hover:underline">
               Đăng nhập
+              </Link>
             </span>
           </p>
         </Form>
