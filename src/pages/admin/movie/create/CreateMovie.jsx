@@ -13,7 +13,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useMessage } from "../../../../common/hooks/useMessage";
 import { formRules } from "../../../../common/utils/formRule";
-import { uploadImage } from "../../../../common/utils/upLoadImage";
+import { upLoadImage } from "../../../../common/utils/upLoadImage";
 import UploadImage from "../../../../components/UploadImage";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY } from "../../../../common/constants/queryKey";
