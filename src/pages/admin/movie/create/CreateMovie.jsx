@@ -13,7 +13,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useMessage } from "../../../../common/hooks/useMessage";
 import { formRules } from "../../../../common/utils/formRule";
-import { uploadImage } from "../../../../common/utils/upLoadImage";
+import { upLoadImage } from "../../../../common/utils/upLoadImage";
 import UploadImage from "../../../../components/UploadImage";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY } from "../../../../common/constants/queryKey";
@@ -51,7 +51,7 @@ const CreateMovie = () => {
   });
   const handleSubmit = async (values) => {
     setLoading(true);
-    const posterUrl = await uploadImage(values.poster[0].originFileObj);
+    const posterUrl = await upLoadImage(values.poster[0].originFileObj);
     if (!posterUrl) {
       setLoading(false);
       antdMessage.error("Upload ảnh thất bại");

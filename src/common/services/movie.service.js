@@ -1,4 +1,4 @@
-import { a } from "framer-motion/dist/types.d-BJcRxCew";
+
 import api from "../utils/api";
 
 export const getAllMovie = async (params) => {
