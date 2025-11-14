@@ -1,4 +1,4 @@
-export const LANGUAGE_OPTION =[
+export const LANGUAGE_OPTIONS =[
     { label: "Tiếng Việt", value: "Tiếng Việt" },
     { label: "Tiếng Anh", value: "Tiếng Anh" },
     { label: "Tiếng Trung", value: "Tiếng Trung" },
