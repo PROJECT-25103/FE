@@ -41,7 +41,7 @@ const Header = () => {
     <>
       <section className="bg-black py-1">
         <div className=" flex justify-end max-w-7xl mx-6 xl:mx-auto">
-        {user ? (
+          {user ? (
             <div className="flex items-center gap-3  font-sans text-sm text-white">
               <p className="m-0!">Xin chào, {user.userName}</p>|
               <button
@@ -73,7 +73,7 @@ const Header = () => {
           )}
         </div>
       </section>
-      <header className="py-4 shadow-lg sticky top-0">
+      <header className="py-4 shadow-lg sticky top-0 z-999 bg-white">
         <div className="flex items-center max-w-7xl xl:mx-auto justify-between">
           <h1 className="text-4xl font-bold m-0!">MPV</h1>
           <div>
