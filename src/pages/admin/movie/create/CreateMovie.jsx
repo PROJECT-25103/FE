@@ -51,7 +51,7 @@ const CreateMovie = () => {
   });
   const handleSubmit = async (values) => {
     setLoading(true);
-    const posterUrl = await uploadImage(values.poster[0].originFileObj);
+    const posterUrl = await upLoadImage(values.poster[0].originFileObj);
     if (!posterUrl) {
       setLoading(false);
       antdMessage.error("Upload ảnh thất bại");
