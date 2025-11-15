@@ -128,7 +128,7 @@ const CreateMovie = () => {
               </Form.Item>
               <Form.Item
                 label="Thể loại phim"
-                name={"category"}
+                name={"genreIds"}
                 required
                 rules={[formRules.required("Thể loại phim", true)]}
               >
