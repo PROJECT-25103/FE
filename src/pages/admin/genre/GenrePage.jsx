@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Space, Modal, message, Input, Typography } from "antd";
+import {
+  Table,
+  Button,
+  Space,
+  Modal,
+  message,
+  Input,
+  Typography,
+  Select,
+} from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -19,6 +28,7 @@ const GenrePage = () => {
   const [openModal, setOpenModal] = useState(false);
   const [editingGenre, setEditingGenre] = useState(null);
   const [searchText, setSearchText] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all"); // ✅ thêm lọc trạng thái
 
   const fetchGenres = async () => {
     try {
@@ -39,11 +49,25 @@ const GenrePage = () => {
     fetchGenres();
   }, []);
 
-  const handleSearch = (value) => {
+  const handleSearch = (value = searchText, status = statusFilter) => {
     setSearchText(value);
-    const filtered = genres.filter((item) =>
-      item.name.toLowerCase().includes(value.toLowerCase()),
-    );
+    setStatusFilter(status);
+
+    let filtered = genres;
+
+    // Lọc theo tên
+    if (value) {
+      filtered = filtered.filter((item) =>
+        item.name.toLowerCase().includes(value.toLowerCase()),
+      );
+    }
+
+    // Lọc theo trạng thái
+    if (status !== "all") {
+      const isActive = status === "active";
+      filtered = filtered.filter((item) => item.status === isActive);
+    }
+
     setFilteredGenres(filtered);
   };
 
@@ -77,7 +101,7 @@ const GenrePage = () => {
       key: "status",
       render: (status) => (
         <span style={{ color: status ? "green" : "red" }}>
-          {status ? "Hoạt Động" : "Đang Khóa"}
+          {status ? "Hoạt động" : "Đang khóa"}
         </span>
       ),
     },
@@ -108,15 +132,28 @@ const GenrePage = () => {
         Quản lý thể loại phim
       </Title>
 
+      {/*Bộ lọc: tìm kiếm + lọc trạng thái */}
       <Space style={{ marginBottom: 16 }}>
         <Input
           placeholder="Tìm kiếm theo tên thể loại..."
           prefix={<SearchOutlined />}
           value={searchText}
-          onChange={(e) => handleSearch(e.target.value)}
+          onChange={(e) => handleSearch(e.target.value, statusFilter)}
           allowClear
           style={{ width: 250 }}
         />
+
+        <Select
+          value={statusFilter}
+          onChange={(value) => handleSearch(searchText, value)}
+          style={{ width: 180 }}
+          options={[
+            { value: "all", label: "Tất cả trạng thái" },
+            { value: "active", label: "Hoạt động" },
+            { value: "inactive", label: "Đang khóa" },
+          ]}
+        />
+
         <Button
           type="primary"
           icon={<PlusOutlined />}
