@@ -15,3 +15,12 @@ export const createMovieAPI = async (payload)=>{
   const {data} = await api.post("/movie", payload);
   return data;
 };
+
+export const getDetailMovie = async (id)=>{
+  const{data} = await api.get(`/movie/detail/${id}`);
+  return data;
+};
+export const updateMovieAPI = async(id, payload)=>{
+  const {data} = await api.patch(`/movie/update/${id}`,payload);
+  return data;
+}
