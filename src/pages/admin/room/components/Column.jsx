@@ -81,7 +81,7 @@ export const columnRoom = (getSorterProps) => {
         <Space style={{ display: "flex", gap: 12 }}>
           <Space>
             <Tooltip title="Cập nhật">
-              <Link className="mx-1" to={`/admin/room/update/${record._id}`}>
+              <Link className="mx-1" to={`/admin/rooms/update/${record._id}`}>
                 <EditOutlined style={{ color: "blue" }} />
               </Link>
             </Tooltip>
