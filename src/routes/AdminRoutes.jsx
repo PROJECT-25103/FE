@@ -3,6 +3,7 @@ import DashboardPage from "../pages/admin/DashboardPage";
 import CreateMovie from "../pages/admin/movie/create/CreateMovie";
 import ListMovie from "../pages/admin/movie/ListMovie";
 import GenrePage from "../pages/admin/genre/GenrePage";
+import UpdateMovie from "../pages/admin/movie/update/UpdateMovie";
 
 export const AdminRoutes = [
   {
@@ -28,6 +29,10 @@ export const AdminRoutes = [
             path: "create",
             element: <CreateMovie />,
           },
+          {
+            path: "update/:id",
+            element:<UpdateMovie />
+          }
         ],
       },
     ],

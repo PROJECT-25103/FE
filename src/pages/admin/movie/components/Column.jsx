@@ -155,7 +155,7 @@ export const columnMovie = (getSorterProps) => {
           </Tooltip>
           <Space>
             <Tooltip title="Cập nhật">
-              <Link className="mx-1" to={`/admin/movie/update/${record._id}`}>
+              <Link className="mx-1" to={`/admin/movies/update/${record._id}`}>
                 <EditOutlined style={{ color: "blue" }} />
               </Link>
             </Tooltip>
