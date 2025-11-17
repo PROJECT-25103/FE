@@ -4,3 +4,8 @@ export const getAllRoom = async (params) => {
   const { data } = await api.get(`/room`, { params });
   return data;
 };
+
+export const updateStatusRoom = async (id) => {
+  const { data } = await api.patch(`/room/status/${id}`);
+  return data;
+};
