@@ -16,3 +16,8 @@ export const getShowtimeWeekday = async (params) => {
   const { data } = await api.get(`${prefix}/weekday`, { params });
   return data;
 };
+
+export const createManyShowtime = async (payload) => {
+  const { data } = await api.post(`${prefix}/many`, payload);
+  return data;
+};
