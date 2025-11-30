@@ -15,14 +15,14 @@ export const convertObject = (inputObj) => {
   }, {});
 };
 
-export const useTable = () => {
+export const useTable = (prefix = "") => {
   const {
     query,
     resetFilter: reset,
     resetFilterExceptPageAndLimit,
     updateQueryParams,
-  } = useQueryFilter();
-  // ACTION FILTER
+  } = useQueryFilter(prefix);
+
   const getFilteredValue = (key) => {
     return query[key] ? query[key].split(",") : undefined;
   };
@@ -34,8 +34,6 @@ export const useTable = () => {
       reset();
     }
   };
-
-  // HANDLE ONCHANGE
   const onChangeSearchInput = useMemo(() => {
     return debounce((text, options) => {
       if (options.enableOnChangeSearch) {
@@ -91,6 +89,7 @@ export const useTable = () => {
           : undefined
         : undefined,
   });
+
   return {
     query,
     onFilter,
