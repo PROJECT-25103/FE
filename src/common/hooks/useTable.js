@@ -34,6 +34,7 @@ export const useTable = (prefix = "") => {
       reset();
     }
   };
+
   const onChangeSearchInput = useMemo(() => {
     return debounce((text, options) => {
       if (options.enableOnChangeSearch) {

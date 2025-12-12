@@ -9,7 +9,6 @@
 body {
   font-family: "Oswald", sans-serif;
 }
-
 .one-line-select .ant-select-selector {
   height: 35px !important;
   overflow: hidden !important;

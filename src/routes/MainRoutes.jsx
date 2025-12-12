@@ -4,6 +4,9 @@ import LoginPage from "../pages/client/auth/LoginPage";
 import RegisterPage from "../pages/client/auth/RegisterPage";
 import HomePage from "../pages/client/home/HomePage";
 import ShowtimePage from "../pages/client/ShowTimePage";
+import AboutPage from "../pages/client/home/components/AboutPage";
+import ContactPage from "../pages/client/home/components/ContactPage";
+import RulePage from "../pages/client/home/components/RulePage";
 
 export const MainRoutes = [
   {
@@ -17,6 +20,18 @@ export const MainRoutes = [
       {
         path: "showtime/:id",
         element: <ShowtimePage />,
+      },
+      {
+        path: "about",       // thêm route cho AboutPage
+        element: <AboutPage />,
+      },
+      {
+        path: "contact",       
+        element: <ContactPage />,
+      },
+      {
+        path: "ticket",       
+        element: <RulePage />,
       },
     ],
   },

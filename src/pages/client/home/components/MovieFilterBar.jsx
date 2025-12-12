@@ -13,25 +13,7 @@ const MovieFilterBar = ({ status }) => {
   useEffect(() => {
     onFilter({ search: null });
   }, [status]);
-  return (
-    <Row gutter={[12, 12]} style={{ marginBottom: 12 }}>
-      <Col xs={24} sm={12} md={10} lg={8}>
-        <Search
-          value={searchValue}
-          placeholder="Tìm theo tiêu đề..."
-          onSearch={(e) => {
-            onFilter({ search: [e] });
-          }}
-          onChange={(e) => {
-            if (!e.target.value) onFilter({ search: null });
-            setSearchValue(e.target.value);
-          }}
-          allowClear
-          enterButton
-        />
-      </Col>
-    </Row>
-  );
+  return <Row gutter={[12, 12]} style={{ marginBottom: 12 }}></Row>;
 };
 
 export default MovieFilterBar;
