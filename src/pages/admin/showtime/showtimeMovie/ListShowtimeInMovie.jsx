@@ -3,9 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Button, Image, Pagination, Spin } from "antd";
 import dayjs from "dayjs";
 import { useParams } from "react-router";
-import { useState } from "react";
 import { DAYOFWEEK_LABEL } from "../../../../common/constants/dayOfWeek";
 import { QUERYKEY } from "../../../../common/constants/queryKey";
+import { useTable } from "../../../../common/hooks/useTable";
 import { getDetailMovie } from "../../../../common/services/movie.service";
 import { getShowtimeWeekday } from "../../../../common/services/showtime.service";
 import FilterShowtimeInMovie from "./components/FilterShowtimeInMovie";
@@ -33,18 +33,10 @@ const getCategoryTextFromMovie = (movie) => {
   const pickName = (c) => {
     if (!c) return null;
     if (typeof c === "string") return c;
-    return (
-      c.name ||
-      c.categoryName ||
-      c.title ||
-      c.label ||
-      c.value ||
-      null
-    );
+    return c.name || c.categoryName || c.title || c.label || c.value || null;
   };
 
-  let text =
-    categoriesArray.map(pickName).filter(Boolean).join(", ") || "";
+  let text = categoriesArray.map(pickName).filter(Boolean).join(", ") || "";
 
   if (text) return text;
 
@@ -63,11 +55,7 @@ const getCategoryTextFromMovie = (movie) => {
   }
 
   for (const [key, value] of Object.entries(movie)) {
-    if (
-      value &&
-      typeof value === "object" &&
-      /category|genre/i.test(key)
-    ) {
+    if (value && typeof value === "object" && /category|genre/i.test(key)) {
       const name = pickName(value);
       if (name) return name;
     }
@@ -79,31 +67,7 @@ const getCategoryTextFromMovie = (movie) => {
 const ListShowtimeInMovie = () => {
   const { id: movieId } = useParams();
 
-  const [query, setQuery] = useState({
-    page: 1,
-    limit: 10,
-  });
-
-  const updateFilter = (payload) => {
-    setQuery((prev) => ({
-      ...prev,
-      ...payload,
-      page: 1,
-    }));
-  };
-
-  const onSelectPaginateChange = (page) => {
-    setQuery((prev) => ({
-      ...prev,
-      page,
-    }));
-  };
-
-  const cleanedQuery = Object.fromEntries(
-    Object.entries(query).filter(
-      ([_, v]) => v !== undefined && v !== null && v !== "",
-    ),
-  );
+  const { query, onSelectPaginateChange } = useTable("showtime");
 
   const { data: movieData, isLoading: isLoadingMovie } = useQuery({
     queryKey: [QUERYKEY.MOVIE, movieId],
@@ -114,13 +78,13 @@ const ListShowtimeInMovie = () => {
   const movie = movieData?.data || {};
 
   const { data, isLoading } = useQuery({
-    queryKey: [QUERYKEY.SHOWTIME, movieId, ...Object.values(cleanedQuery)],
+    queryKey: [QUERYKEY.SHOWTIME, movieId, ...Object.values(query)],
     queryFn: () =>
       getShowtimeWeekday({
         movieId,
         sort: "startTime",
         order: "asc",
-        ...cleanedQuery,
+        ...query,
       }),
     enabled: !!movieId,
   });
@@ -211,7 +175,7 @@ const ListShowtimeInMovie = () => {
               [&_.ant-btn-default]:text-slate-700
             "
           >
-            <FilterShowtimeInMovie updateFilter={updateFilter} />
+            <FilterShowtimeInMovie />
           </div>
 
           {/* Danh sách lịch chiếu */}
