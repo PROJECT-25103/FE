@@ -1,5 +1,7 @@
+import { CloseOutlined, LeftOutlined } from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, Spin } from "antd";
+import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import { useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
@@ -8,6 +10,7 @@ import { SEAT_STATUS } from "../../../../../common/constants/seat";
 import { useMessage } from "../../../../../common/hooks/useMessage";
 import { useUnHoldOnBack } from "../../../../../common/hooks/useUnHoldOnBack";
 import {
+  extendHoldSeat,
   getSeatShowtime,
   toggleSeat,
   unHoldSeat,
@@ -16,8 +19,6 @@ import { formatCurrency, getSeatPrice } from "../../../../../common/utils";
 import CountTime from "../../../../../components/CountTime";
 import { getSocket } from "../../../../../socket/socket-client";
 import { useAuthSelector } from "../../../../../store/useAuthStore";
-import { CloseOutlined, LeftOutlined } from "@ant-design/icons";
-import dayjs from "dayjs";
 
 const SeatPicker = ({
   showtimeId: showtimeIdProp,
@@ -50,6 +51,20 @@ const SeatPicker = ({
       return data;
     },
     enabled: !!showtimeId && !!roomId,
+  });
+
+  const { mutate: mutateExtendHold, isPending } = useMutation({
+    mutationFn: (showtimeId) => extendHoldSeat(showtimeId),
+    onSuccess: () => {
+      const finalMovieId =
+        movieIdParam || showtimeInfo?.movieId?._id || showtimeInfo?.movieId;
+      const finalHour =
+        hour ||
+        (showtimeInfo ? dayjs(showtimeInfo.startTime).format("HH:mm") : "");
+      nav(
+        `/checkout/${showtimeId}/${roomId}?movieId=${finalMovieId}&hour=${finalHour}`,
+      );
+    },
   });
 
   const myHoldSeats =
@@ -426,6 +441,7 @@ const SeatPicker = ({
                 type="primary"
                 size="large"
                 block
+                loading={isPending}
                 onClick={() => {
                   if (myHoldSeats.length === 0) {
                     showMessage({
@@ -435,20 +451,7 @@ const SeatPicker = ({
                     });
                     return;
                   }
-
-                  const finalMovieId =
-                    movieIdParam ||
-                    showtimeInfo?.movieId?._id ||
-                    showtimeInfo?.movieId;
-                  const finalHour =
-                    hour ||
-                    (showtimeInfo
-                      ? dayjs(showtimeInfo.startTime).format("HH:mm")
-                      : "");
-
-                  nav(
-                    `/checkout/${showtimeId}/${roomId}?movieId=${finalMovieId}&hour=${finalHour}`,
-                  );
+                  mutateExtendHold(showtimeId);
                 }}
                 className="bg-red-600 hover:bg-red-700 border-none h-12 rounded-xl text-base font-bold shadow-lg shadow-red-200"
               >
