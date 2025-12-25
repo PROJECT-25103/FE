@@ -1,5 +1,13 @@
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
-import { Button, DatePicker, Form, InputNumber, Select, Tag } from "antd";
+import {
+  Button,
+  DatePicker,
+  Form,
+  InputNumber,
+  Select,
+  Tag,
+  Space,
+} from "antd";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router";
 import { DAYOFWEEK_LABEL } from "../../../../common/constants/dayOfWeek";
@@ -51,6 +59,14 @@ const CreateMovieShowtime = () => {
     const typeSeat = ["NORMAL", "VIP", "COUPLE"];
     const startDate = dayjs(values.dateRange[0]).format("YYYY-MM-DD");
     const endDate = dayjs(values.dateRange[1]).format("YYYY-MM-DD");
+    const normalizeValue = (v) => {
+      if (v === undefined || v === null) return 0;
+      if (typeof v === "number") return v;
+
+      const digits = String(v).replace(/\D+/g, "");
+      return Number(digits) || 0;
+    };
+
     const payload = {
       ...values,
       startDate,
@@ -58,12 +74,12 @@ const CreateMovieShowtime = () => {
       movieId: JSON.parse(values.movieId.value)._id,
       fixedHour: dayjs(values.fixedHour[0]).format("HH:mm"),
       price: values.price.map((item, index) => ({
-        ...item,
         seatType: typeSeat[index],
+        value: normalizeValue(item?.value),
       })),
     };
     await mutateAsync(payload);
-    if (nav) navigate("/admin/showtime");
+    if (nav) navigate("/admin/showtimes");
   };
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -150,12 +166,16 @@ const CreateMovieShowtime = () => {
                 name={["price", 0, "value"]}
                 rules={[{ required: true, message: "Nhập giá ghế thường" }]}
               >
-                <InputNumber
-                  addonAfter="VND"
-                  className="w-full"
-                  placeholder="Nhập giá"
-                  {...antdInputNumberPropsCurrency()}
-                />
+                <Space.Compact className="w-full">
+                  <InputNumber
+                    className="w-full"
+                    placeholder="Nhập giá"
+                    {...antdInputNumberPropsCurrency()}
+                  />
+                  <div className="px-3 h-10 flex items-center border border-solid border-[#d9d9d9] rounded-r-md bg-[#f5f5f5]">
+                    VND
+                  </div>
+                </Space.Compact>
               </Form.Item>
 
               <Form.Item
@@ -163,12 +183,16 @@ const CreateMovieShowtime = () => {
                 name={["price", 1, "value"]}
                 rules={[{ required: true, message: "Nhập giá ghế VIP" }]}
               >
-                <InputNumber
-                  addonAfter="VND"
-                  className="w-full"
-                  placeholder="Nhập giá"
-                  {...antdInputNumberPropsCurrency(20000)}
-                />
+                <Space.Compact className="w-full">
+                  <InputNumber
+                    className="w-full"
+                    placeholder="Nhập giá"
+                    {...antdInputNumberPropsCurrency(20000)}
+                  />
+                  <div className="px-3 h-10 flex items-center border border-solid border-[#d9d9d9] rounded-r-md bg-[#f5f5f5]">
+                    VND
+                  </div>
+                </Space.Compact>
               </Form.Item>
 
               <Form.Item
@@ -176,12 +200,16 @@ const CreateMovieShowtime = () => {
                 name={["price", 2, "value"]}
                 rules={[{ required: true, message: "Nhập giá ghế đôi" }]}
               >
-                <InputNumber
-                  addonAfter="VND"
-                  className="w-full"
-                  placeholder="Nhập giá"
-                  {...antdInputNumberPropsCurrency(30000)}
-                />
+                <Space.Compact className="w-full">
+                  <InputNumber
+                    className="w-full"
+                    placeholder="Nhập giá"
+                    {...antdInputNumberPropsCurrency(30000)}
+                  />
+                  <div className="px-3 h-10 flex items-center border border-solid border-[#d9d9d9] rounded-r-md bg-[#f5f5f5]">
+                    VND
+                  </div>
+                </Space.Compact>
               </Form.Item>
             </div>
           </div>

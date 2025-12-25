@@ -7,6 +7,7 @@ import {
   InputNumber,
   Select,
   Switch,
+  Space,
 } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import dayjs from "dayjs";
@@ -39,8 +40,9 @@ const UpdateMovie = () => {
 
   const { data: genre } = useQuery({
     queryKey: [QUERY.GENRE],
-    queryFn: () => getAllGenre(),
+    queryFn: () => getAllGenre({ status: true }),
   });
+
 
   const { data } = useQuery({
     queryKey: [QUERY.MOVIE, id],
@@ -59,6 +61,31 @@ const UpdateMovie = () => {
       return data;
     },
   });
+
+  const genreOptions = (() => {
+    const active = genre?.data || [];
+    const existing = data ? data.genreIds || [] : [];
+
+    // Normalize existing items to objects { _id, name }
+    const existingNormalized = existing
+      .map((g) => {
+        if (!g) return null;
+        if (typeof g === "string") {
+          const found = active.find((a) => String(a._id) === String(g));
+          return found ? found : { _id: g, name: "(Đã khoá)" };
+        }
+        // assume object with _id and name
+        return g;
+      })
+      .filter(Boolean);
+
+    const mergedById = new Map();
+    active.forEach((a) => mergedById.set(String(a._id), a));
+    existingNormalized.forEach((e) => mergedById.set(String(e._id), e));
+
+    const merged = Array.from(mergedById.values());
+    return merged.map((g) => ({ label: g.name, value: g._id }));
+  })();
 
   const { mutateAsync } = useMutation({
     mutationFn: (payload) => updateMovieAPI(id, payload),
@@ -186,12 +213,14 @@ const UpdateMovie = () => {
                 required
                 rules={[formRules.required("Thời gian chiếu phim")]}
               >
-                <InputNumber
-                  min={10}
-                  max={360}
-                  addonAfter="Phút"
-                  style={{ width: "100%" }}
-                />
+                <Space.Compact className="w-full">
+                  <InputNumber
+                    min={10}
+                    max={360}
+                    className="w-full"
+                  />
+                  <div className="px-3 h-10 flex items-center border border-solid border-[#d9d9d9] rounded-r-md bg-[#f5f5f5]">Phút</div>
+                </Space.Compact>
               </Form.Item>
 
               <Form.Item
@@ -238,10 +267,7 @@ const UpdateMovie = () => {
                 <Select
                   mode="multiple"
                   placeholder="Chọn thể loại"
-                  options={genre?.data.map((g) => ({
-                    label: g.name,
-                    value: g._id,
-                  }))}
+                  options={genreOptions}
                 />
               </Form.Item>
             </section>

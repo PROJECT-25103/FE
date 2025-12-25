@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router";
+import { useEffect } from "react";
+import { Outlet, useParams } from "react-router";
 import { QUERYKEY } from "../../../../common/constants/queryKey";
 import { getDetailMovie } from "../../../../common/services/movie.service";
 import { getAgeBadge } from "../../../../common/utils/agePolicy";
 import ModalTrailer from "./components/ModalTrailer";
 import ModalDescription from "./components/ModalDescription";
-import { useEffect } from "react";
-import ShowtimePicker from "./components/ShowtimePicker";
 
 const DetailMovie = () => {
   const { id } = useParams();
@@ -64,23 +63,23 @@ const DetailMovie = () => {
               </div>
 
               <p
-                className="mt-2 line-clamp-1"
+                className="mt-2 line-clamp-1 wrap-break-word whitespace-normal"
                 title={`${movie?.actor?.join(", ")} và một số diễn viên khác.`}
               >
                 Diễn viên: {movie?.actor?.join(", ")} và một số diễn viên khác.
               </p>
 
               <p
-                className="mt-2 line-clamp-1"
+                className="mt-2 line-clamp-1 wrap-break-word whitespace-normal"
                 title={movie?.category?.map((item) => item.name).join(", ")}
               >
-                Thể loại:{" "}
-                {movie?.category
-                  ?.map((item) => item.name)
-                  .join(", ")}
+                Thể loại: {movie?.category?.map((item) => item.name).join(", ")}
               </p>
 
-              <p className="mt-2 line-clamp-5" title={movie?.description}>
+              <p
+                className="mt-2 line-clamp-5 wrap-break-word whitespace-normal"
+                title={movie?.description}
+              >
                 Nội dung: {movie?.description || "Chưa cập nhật"}
               </p>
             </div>
@@ -110,7 +109,7 @@ const DetailMovie = () => {
         </div>
       </div>
 
-      <ShowtimePicker />
+      <Outlet />
     </div>
   );
 };

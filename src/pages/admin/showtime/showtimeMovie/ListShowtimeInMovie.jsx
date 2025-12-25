@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button, Image, Pagination, Spin } from "antd";
 import dayjs from "dayjs";
 import { useParams } from "react-router";
+
 import { DAYOFWEEK_LABEL } from "../../../../common/constants/dayOfWeek";
 import { QUERYKEY } from "../../../../common/constants/queryKey";
 import { useTable } from "../../../../common/hooks/useTable";
@@ -34,9 +35,17 @@ const getCategoryTextFromMovie = (movie) => {
     if (!c) return null;
     if (typeof c === "string") return c;
     return c.name || c.categoryName || c.title || c.label || c.value || null;
+
+
+
+
+
+
+
   };
 
   let text = categoriesArray.map(pickName).filter(Boolean).join(", ") || "";
+
 
   if (text) return text;
 
@@ -56,6 +65,10 @@ const getCategoryTextFromMovie = (movie) => {
 
   for (const [key, value] of Object.entries(movie)) {
     if (value && typeof value === "object" && /category|genre/i.test(key)) {
+
+
+
+
       const name = pickName(value);
       if (name) return name;
     }
@@ -68,6 +81,30 @@ const ListShowtimeInMovie = () => {
   const { id: movieId } = useParams();
 
   const { query, onSelectPaginateChange } = useTable("showtime");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   const { data: movieData, isLoading: isLoadingMovie } = useQuery({
     queryKey: [QUERYKEY.MOVIE, movieId],

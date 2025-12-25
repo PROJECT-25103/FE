@@ -1,13 +1,16 @@
 import React from "react";
-import { Layout, Button, Space, Typography, Menu } from "antd";
+import { Layout, Button, Space, Typography, Menu, Modal } from "antd";
 import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import { Outlet, useNavigate } from "react-router-dom";
+import { useAuthSelector } from "../../store/useAuthStore";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 
 const { Header, Content } = Layout;
 const { Text } = Typography;
 
 const AdminLayout = () => {
   const navigate = useNavigate();
+  const logout = useAuthSelector((state) => state.doLogout);
 
   // MENU NGANG
   const menuItems = [
@@ -16,7 +19,9 @@ const AdminLayout = () => {
     { key: "/admin/movies", label: "Quản lý phim" },
     { key: "/admin/rooms", label: "Quản lý phòng chiếu" },
     { key: "/admin/showtimes", label: "Quản lý lịch chiếu" },
+    { key: "/admin/banners", label: "Quản lý banner" },
     { key: "/admin/users", label: "Quản lý người dùng" },
+
   ];
 
   return (
@@ -78,7 +83,19 @@ const AdminLayout = () => {
             danger
             style={{ borderRadius: 6 }}
             onClick={() => {
-              // TODO: logout
+              Modal.confirm({
+                centered: true,
+                title: "Đăng xuất",
+                icon: <ExclamationCircleOutlined style={{ color: "#ef4444" }} />,
+                content: "Bạn có chắc chắn muốn đăng xuất không?",
+                okText: "Đăng xuất",
+                cancelText: "Hủy",
+                okButtonProps: { danger: true },
+                onOk: () => {
+                  logout();
+                  navigate("/");
+                },
+              });
             }}
           >
             Đăng xuất

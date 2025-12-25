@@ -74,22 +74,20 @@ export const columnUser = (getSorterProps) => {
       render: (_, record) => (
         <Space style={{ display: "flex", gap: 12 }}>
           {/* ------------------ Xem chi tiết ------------------ */}
-          <ModalDetailUser user={record}>
-            <Tooltip title="Xem chi tiết">
-              <EyeOutlined style={{ cursor: "pointer", fontSize: 18 }} />
-            </Tooltip>
-          </ModalDetailUser>
+        <ModalDetailUser user={record}>
+          <Tooltip title="Xem chi tiết">
+            <EyeOutlined style={{cursor: "pointer", fontSize: 18}} />
+          </Tooltip>
+        </ModalDetailUser>
 
-          {/* ------------------ Cập nhật ------------------ */}
-          {record._id !== userId && (
-            <ModalUpdateUser user={record}>
-              <Tooltip title="Cập nhật">
+         {/* ----------cập nhật---- */}
+         {record._id !==userId && (
+          <ModalUpdateUser user={record}> 
+          <Tooltip title="Cập nhật"> 
                 <EditOutlined style={{ color: "blue" }} />
-              </Tooltip>
+            </Tooltip>
             </ModalUpdateUser>
-          )}
-
-          {/* ------------------ Khoá / mở khoá ------------------ */}
+         )}
         </Space>
       ),
     },

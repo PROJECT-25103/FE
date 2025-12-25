@@ -5,6 +5,7 @@ import {
   UnlockOutlined,
 } from "@ant-design/icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 import {
   Button,
   Dropdown,
@@ -15,10 +16,11 @@ import {
   Select,
   Tag,
 } from "antd";
+
 import TextArea from "antd/es/input/TextArea";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { seatTypeColor } from "../../../../common/constants";
+import { seatTypeColor, seatTypeText } from "../../../../common/constants";
 import { QUERY } from "../../../../common/constants/queryKey";
 import { useMessage } from "../../../../common/hooks/useMessage";
 import { createRoom } from "../../../../common/services/room.service";
@@ -181,7 +183,7 @@ const CreateRoom = () => {
         col: seat.col,
         label: seat.label,
         type: seat.type,
-        status: seat.status,
+        status: !seat.locked,
         span: seat.span || 1,
       }));
     mutate({
@@ -221,6 +223,7 @@ const CreateRoom = () => {
     return items;
   };
   console.log(seatsState);
+
   return (
     <div className="w-full bg-white p-6 rounded-lg shadow-sm">
       <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
@@ -452,7 +455,7 @@ const CreateRoom = () => {
                                           )
                                         : "#d1d5db"
                                     }`,
-                                    color: seat.status ? "#fff" : "#9ca3af",
+                                    color: seatTypeText[seat.type],
                                     minWidth: isCombined ? "80px" : "40px",
                                     gridColumn: isCombined ? `span 2` : "auto",
                                     display: seat.status ? "flex" : "none",
@@ -617,31 +620,25 @@ const CreateRoom = () => {
                   <h4 className="text-sm font-medium text-gray-700 mb-3">
                     Chú thích:
                   </h4>
-                  <div className="flex flex-wrap gap-2">
-                    <Tag
-                      color={seatTypeColor["NORMAL"]}
-                      className="m-0 px-3 py-1 rounded-md font-medium"
-                    >
-                      Ghế thường
-                    </Tag>
-                    <Tag
-                      color={seatTypeColor["VIP"]}
-                      className="m-0 px-3 py-1 rounded-md font-medium"
-                    >
-                      Ghế VIP
-                    </Tag>
-                    <Tag
-                      color={seatTypeColor["COUPLE"]}
-                      className="m-0 px-3 py-1 rounded-md font-medium"
-                    >
-                      Ghế đôi
-                    </Tag>
-                    <Tag
-                      color="error"
-                      className="m-0 px-3 py-1 rounded-md font-medium"
-                    >
-                      Ghế bị khoá
-                    </Tag>
+                  <div className="mt-12 flex flex-wrap justify-center gap-6 border-t pt-8 border-slate-100">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded bg-white border border-gray-200"></div>
+                      <span className="text-sm text-slate-500">Ghế thường</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded bg-amber-400"></div>
+                      <span className="text-sm text-slate-500">Ghế VIP</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded bg-rose-400"></div>
+                      <span className="text-sm text-slate-500">Ghế đôi</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded bg-red-500"></div>
+                      <span className="text-sm text-slate-500">
+                        Ghế bạn chọn
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

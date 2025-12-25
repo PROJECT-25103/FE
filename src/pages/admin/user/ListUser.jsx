@@ -6,7 +6,7 @@ import { getAllUser } from "../../../common/services/user.service";
 import { useTable } from "../../../common/hooks/useTable";
 import { columnUser } from "./components/Column";
 import { USER_ROLE } from "../../../common/constants/user";
-import ModalCreateUser from "./components/ModalCreateUser";
+import ModalCreateUser  from "./components/ModalCreateUser";
 import FilterUser from "./components/FilterUser";
 
 const ListUser = () => {
@@ -32,6 +32,7 @@ const ListUser = () => {
         </ModalCreateUser>
       </div>
       <FilterUser />
+
       <div className="mt-4">
         <Table
           bordered
