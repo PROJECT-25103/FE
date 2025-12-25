@@ -1,26 +1,44 @@
-import React, { useMemo } from "react";
-import { useParams, useSearchParams, useNavigate } from "react-router-dom";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Card, Radio, Checkbox, Button, Spin, Divider, Tag } from "antd";
-import { CreditCardOutlined, ScheduleOutlined, HomeOutlined, UserOutlined } from "@ant-design/icons";
-import { useMessage } from "../../../common/hooks/useMessage";
+import {
+  CreditCardOutlined,
+  HomeOutlined,
+  ScheduleOutlined,
+} from "@ant-design/icons";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  Button,
+  Card,
+  Checkbox,
+  Divider,
+  Form,
+  Input,
+  Radio,
+  Spin,
+  Tag,
+} from "antd";
+import { useMemo, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { QUERYKEY } from "../../../common/constants/queryKey";
-import { getSeatShowtime } from "../../../common/services/seat.showtime.service";
-import { getSeatByRoom } from "../../../common/services/room.service";
-import { getDetailMovie } from "../../../common/services/movie.service";
-import { useAuthSelector } from "../../../store/useAuthStore";
 import { SEAT_STATUS } from "../../../common/constants/seat";
+import { useMessage } from "../../../common/hooks/useMessage";
+import { checkoutPayos } from "../../../common/services/checkout.service";
+import { getDetailMovie } from "../../../common/services/movie.service";
+import { getSeatByRoom } from "../../../common/services/room.service";
+import { getSeatShowtime } from "../../../common/services/seat.showtime.service";
+import { getDetailShowtime } from "../../../common/services/showtime.service";
 import { formatCurrency, getSeatPrice } from "../../../common/utils";
+import { useAuthSelector } from "../../../store/useAuthStore";
 
 const CheckoutPage = () => {
+  const [acpPolicy, setAcpPolicy] = useState(false);
   const nav = useNavigate();
+  const [form] = Form.useForm();
   const { showtimeId, roomId } = useParams();
   const [searchParams] = useSearchParams();
   const hour = searchParams.get("hour");
   const movieId = searchParams.get("movieId");
   const userId = useAuthSelector((s) => s.user?._id);
-  const { HandleError, showMessage } = useMessage();
-  useQueryClient();
+  const user = useAuthSelector((s) => s.user);
+  const { HandleError } = useMessage();
 
   const { data: roomSeatData } = useQuery({
     queryKey: [QUERYKEY.ROOM, roomId, "seat-map"],
@@ -38,6 +56,11 @@ const CheckoutPage = () => {
     queryKey: ["movie-detail", movieId],
     queryFn: () => getDetailMovie(movieId),
     enabled: !!movieId,
+  });
+
+  const { data: showtimeRes } = useQuery({
+    queryKey: [QUERYKEY.SHOWTIME, showtimeId],
+    queryFn: () => getDetailShowtime(showtimeId),
   });
 
   const movieName = useMemo(() => {
@@ -70,24 +93,71 @@ const CheckoutPage = () => {
     const seats = (room.seats || []).map((rs) => {
       const st = m.get(rs._id || rs.label);
       return st
-        ? { ...rs, bookingStatus: st.bookingStatus, userId: st.userId, price: st.price ?? rs.price }
+        ? {
+            ...rs,
+            bookingStatus: st.bookingStatus,
+            userId: st.userId,
+            price: st.price ?? rs.price,
+          }
         : rs;
     });
-    return { ...room, name: room?.name || roomSeatData?.data?.name || roomSeatData?.name, seats };
+    return {
+      ...room,
+      name: room?.name || roomSeatData?.data?.name || roomSeatData?.name,
+      seats,
+    };
   }, [roomSeatData, seatStatusRes]);
 
-  const myHoldSeats = useMemo(() =>
-    seatPayload?.seats?.filter((s) => s.bookingStatus === SEAT_STATUS.HOLD && s.userId === userId) || [],
-  [seatPayload, userId]);
+  const myHoldSeats = useMemo(
+    () =>
+      seatPayload?.seats?.filter(
+        (s) => s.bookingStatus === SEAT_STATUS.HOLD && s.userId === userId,
+      ) || [],
+    [seatPayload, userId],
+  );
 
-  const total = useMemo(() => myHoldSeats.reduce((sum, s) => sum + getSeatPrice(s), 0), [myHoldSeats]);
+  const total = useMemo(
+    () => myHoldSeats.reduce((sum, s) => sum + getSeatPrice(s), 0),
+    [myHoldSeats],
+  );
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: (payload) => checkoutPayos(payload),
+    onSuccess: ({ data }) => {
+      window.location.href = data;
+    },
+    onError: (err) => HandleError(err),
+  });
+
+  const handleCheckout = async () => {
+    const values = await form.validateFields();
+    const payload = {
+      showtimeId,
+      movieId,
+      movieName: movieName,
+      roomId,
+      roomName: roomSeatData.data.name,
+      startTime: showtimeRes.data.startTime,
+      totalAmount: total,
+      seats: myHoldSeats.map((item) => {
+        return {
+          ...item,
+          seatId: item._id,
+          price: item.price.find((price) => price.seatType === item.type).value,
+        };
+      }),
+      ...values,
+    };
+    mutate(payload);
+  };
   return (
-    <div className="min-h-screen mt-12 bg-white text-slate-900">
+    <div className="min-h-[110vh] mt-12 bg-white text-slate-900">
       <div className="max-w-7xl xl:mx-auto mx-6">
         <div className="mb-6">
           <h1 className="text-3xl font-extrabold">Thanh toán</h1>
-          <p className="text-slate-600">Xác nhận thông tin và chọn phương thức thanh toán</p>
+          <p className="text-slate-600">
+            Xác nhận thông tin và chọn phương thức thanh toán
+          </p>
         </div>
         {isLoading ? (
           <div className="flex items-center justify-center min-h-[40vh]">
@@ -96,62 +166,145 @@ const CheckoutPage = () => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
-              <Card className="rounded-2xl bg-white" style={{ borderColor: "#e5e7eb" }}>
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-slate-600">Thông tin phim</p>
-                  <Tag color="red">Đang giữ {myHoldSeats.length} ghế</Tag>
-                </div>
-                <div className="mt-2 space-y-3">
-                  <div>
-                    <span className="opacity-80">Phim</span>
-                    <div className="font-bold text-lg">{movieName || "—"}</div>
-                    {movieDetail && (
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 mt-1">
-                        {movieDetail.age && (
-                          <span className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 font-bold text-slate-600">
-                            {movieDetail.age}
-                          </span>
-                        )}
-                      </div>
-                    )}
+              <div>
+                <Card
+                  className="rounded-2xl bg-white"
+                  style={{ borderColor: "#e5e7eb" }}
+                >
+                  <p className="text-sm text-slate-600">Thông tin khách hàng</p>
+                  <Form
+                    initialValues={{ customerInfo: { ...user } }}
+                    form={form}
+                    layout="vertical"
+                  >
+                    <Form.Item
+                      label="Email"
+                      name={["customerInfo", "email"]}
+                      rules={[
+                        {
+                          type: "email",
+                          message: "Vui lòng nhập đúng định dạng email",
+                        },
+                        {
+                          required: true,
+                          message: "Email không được để trống",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Nhập email của bạn" />
+                    </Form.Item>
+                    <Form.Item
+                      label="Họ và tên"
+                      name={["customerInfo", "userName"]}
+                      rules={[
+                        {
+                          required: true,
+                          message: "Họ và tên không được để trống",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Nhập họ tên của bạn" />
+                    </Form.Item>
+                    <Form.Item
+                      label="Số điện thoại"
+                      name={["customerInfo", "phone"]}
+                      rules={[
+                        {
+                          required: true,
+                          message: "Số điện thoại không được để trống",
+                        },
+                        {
+                          min: 6,
+                          message: "Số điện thoại phải có ít nhất 6 ký tự",
+                        },
+                        {
+                          max: 16,
+                          message:
+                            "Số điện thoại chỉ được phép nhập tối đa 16 ký tự",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Nhập họ tên của bạn" />
+                    </Form.Item>
+                  </Form>
+                </Card>
+                <Card
+                  className="rounded-2xl bg-white"
+                  style={{ borderColor: "#e5e7eb", marginTop: 20 }}
+                >
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-slate-600">Thông tin phim</p>
+                    <Tag color="red">Đang giữ {myHoldSeats.length} ghế</Tag>
                   </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="rounded-xl border border-slate-200 p-4">
-                    <div className="flex items-center gap-3">
-                      <ScheduleOutlined className="text-red-500" />
-                      <div>
-                        <p className="text-slate-600 m-0">Ngày giờ chiếu</p>
-                        <p className="font-bold text-slate-900 m-0">{hour}</p>
+                  <div className="mt-2 space-y-3">
+                    <div>
+                      <span className="opacity-80">Phim</span>
+                      <div className="font-bold text-lg">
+                        {movieName || "—"}
+                      </div>
+                      {movieDetail && (
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 mt-1">
+                          {movieDetail.age && (
+                            <span className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 font-bold text-slate-600">
+                              {movieDetail.age}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="rounded-xl border border-slate-200 p-4">
+                        <div className="flex items-center gap-3">
+                          <ScheduleOutlined className="text-red-500" />
+                          <div>
+                            <p className="text-slate-600 m-0">Ngày giờ chiếu</p>
+                            <p className="font-bold text-slate-900 m-0">
+                              {hour}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="rounded-xl border border-slate-200 p-4">
+                        <div className="flex items-center gap-3">
+                          <HomeOutlined className="text-red-500" />
+                          <div>
+                            <p className="text-slate-600 m-0">Phòng chiếu</p>
+                            <p className="font-bold text-slate-900 m-0">
+                              {seatPayload?.name ||
+                                roomSeatData?.name ||
+                                roomId}
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="rounded-xl border border-slate-200 p-4">
-                    <div className="flex items-center gap-3">
-                      <HomeOutlined className="text-red-500" />
-                      <div>
-                        <p className="text-slate-600 m-0">Phòng chiếu</p>
-                        <p className="font-bold text-slate-900 m-0">{seatPayload?.name || roomSeatData?.name || roomId}</p>
-                      </div>
+                    <div className="mt-4 rounded-xl border border-slate-200 p-4">
+                      <p className="text-slate-600">Ghế đã chọn</p>
+                      <p className="font-semibold text-slate-900">
+                        {myHoldSeats.map((s) => s.label).join(", ") || "—"}
+                      </p>
                     </div>
                   </div>
-                </div>
-                <div className="mt-4 rounded-xl border border-slate-200 p-4">
-                  <p className="text-slate-600">Ghế đã chọn</p>
-                  <p className="font-semibold text-slate-900">{myHoldSeats.map((s) => s.label).join(", ") || "—"}</p>
-                </div>
-                </div>
-              </Card>
+                </Card>
+              </div>
             </div>
 
             <div className="lg:col-span-1">
-              <Card className="rounded-2xl bg-white" style={{ borderColor: "#e5e7eb", position: "sticky", top: 24 }}>
+              <Card
+                className="rounded-2xl bg-white"
+                style={{ borderColor: "#e5e7eb", position: "sticky", top: 24 }}
+              >
                 <div className="flex items-center gap-8">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-600">
                     <CreditCardOutlined />
                   </div>
                   <div>
-                    <p className="text-sm text-slate-600 m-0">Phương thức thanh toán</p>
-                    <p className="text-xs text-slate-500 m-0">Chọn một phương thức để tiếp tục</p>
+                    <p className="text-sm text-slate-600 m-0">
+                      Phương thức thanh toán
+                    </p>
+                    <p className="text-xs text-slate-500 m-0">
+                      Chọn một phương thức để tiếp tục
+                    </p>
                   </div>
                 </div>
 
@@ -159,16 +312,24 @@ const CheckoutPage = () => {
                   <Radio.Group defaultValue="vietqr" className="w-full">
                     <div className="space-y-3">
                       <div className="rounded-xl border border-slate-200 p-3 hover:border-red-400">
-                        <Radio value="vietqr" className="text-slate-900">VietQR</Radio>
+                        <Radio value="vietqr" className="text-slate-900">
+                          VietQR
+                        </Radio>
                       </div>
                       <div className="rounded-xl border border-slate-200 p-3 hover:border-red-400">
-                        <Radio value="vnpay" className="text-slate-900">VNPAY</Radio>
+                        <Radio value="vnpay" className="text-slate-900">
+                          VNPAY
+                        </Radio>
                       </div>
                       <div className="rounded-xl border border-slate-200 p-3 hover:border-red-400">
-                        <Radio value="viettel" className="text-slate-900">Viettel Money</Radio>
+                        <Radio value="viettel" className="text-slate-900">
+                          Viettel Money
+                        </Radio>
                       </div>
                       <div className="rounded-xl border border-slate-200 p-3 hover:border-red-400">
-                        <Radio value="momo" className="text-slate-900">MoMo</Radio>
+                        <Radio value="momo" className="text-slate-900">
+                          MoMo
+                        </Radio>
                       </div>
                     </div>
                   </Radio.Group>
@@ -178,7 +339,9 @@ const CheckoutPage = () => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span>Thanh toán</span>
-                    <span className="font-bold">{formatCurrency(total || 0)}</span>
+                    <span className="font-bold">
+                      {formatCurrency(total || 0)}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>Phí</span>
@@ -186,34 +349,54 @@ const CheckoutPage = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <span>Tổng cộng</span>
-                    <span className="font-bold">{formatCurrency(total || 0)}</span>
+                    <span className="font-bold">
+                      {formatCurrency(total || 0)}
+                    </span>
                   </div>
                 </div>
 
                 <div className="mt-4">
-                  <Checkbox className="text-slate-800">Tôi xác nhận các thông tin đã chính xác và đồng ý với các điều khoản & chính sách</Checkbox>
+                  <Checkbox
+                    onChange={(e) => {
+                      setAcpPolicy(e.target.checked);
+                    }}
+                    className="text-slate-800"
+                  >
+                    Tôi xác nhận các thông tin đã chính xác và đồng ý với các
+                    điều khoản & chính sách
+                  </Checkbox>
                 </div>
 
                 <div className="mt-4 flex items-center gap-3">
                   <Button
+                    loading={isPending}
                     type="primary"
-                    className="flex-1"
-                    style={{ height: 44, borderRadius: 9999, background: "linear-gradient(to right, #ef4444, #dc2626)", border: "none" }}
-                    disabled={!myHoldSeats.length}
+                    className="flex-1 "
+                    style={{
+                      height: 44,
+                      borderRadius: 9999,
+                      border: "none",
+                    }}
+                    disabled={!myHoldSeats.length || !acpPolicy}
                     onClick={() => {
-                      showMessage({ type: "success", title: "Thanh toán", description: "Đang chuyển tới cổng thanh toán..." });
+                      handleCheckout();
                     }}
                   >
                     Thanh toán
                   </Button>
-                  <Button onClick={() => nav(-1)} style={{ height: 44 }}>Quay lại</Button>
+                  <Button onClick={() => nav(-1)} style={{ height: 44 }}>
+                    Quay lại
+                  </Button>
                 </div>
               </Card>
             </div>
           </div>
         )}
 
-        <Card className="mt-6 rounded-2xl bg-white" style={{ borderColor: "#e5e7eb" }}>
+        <Card
+          className="rounded-2xl bg-white"
+          style={{ borderColor: "#e5e7eb", marginTop: 20 }}
+        >
           <p className="text-sm text-slate-600">Thông tin thanh toán</p>
           <div className="mt-3">
             <div className="grid grid-cols-12">
@@ -222,7 +405,9 @@ const CheckoutPage = () => {
               <div className="col-span-3">Tổng tiền</div>
             </div>
             <div className="mt-2 grid grid-cols-12 items-center text-slate-900">
-              <div className="col-span-6">Ghế ({myHoldSeats.map((s) => s.label).join(", ") || "—"})</div>
+              <div className="col-span-6">
+                Ghế ({myHoldSeats.map((s) => s.label).join(", ") || "—"})
+              </div>
               <div className="col-span-3">{myHoldSeats.length}</div>
               <div className="col-span-3">{formatCurrency(total || 0)}</div>
             </div>

@@ -12,6 +12,11 @@ export const getAllShowtime = async (params) => {
   return data;
 };
 
+export const getDetailShowtime = async (id) => {
+  const { data } = await api.get(`${prefix}/detail/${id}`);
+  return data;
+};
+
 export const getShowtimeWeekday = async (params) => {
   const { data } = await api.get(`${prefix}/weekday`, { params });
   return data;
@@ -33,6 +38,3 @@ export const updateShowtime = async (id, payload) => {
   const { data } = await api.patch(`${prefix}/update/${realId}`, payload);
   return data;
 };
-
-
-
