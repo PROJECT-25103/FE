@@ -28,6 +28,7 @@ import { getDetailShowtime } from "../../../common/services/showtime.service";
 import { formatCurrency, getSeatPrice } from "../../../common/utils";
 import CountTime from "../../../components/CountTime";
 import { useAuthSelector } from "../../../store/useAuthStore";
+import dayjs from "dayjs";
 
 const CheckoutPage = () => {
   const [acpPolicy, setAcpPolicy] = useState(false);
@@ -35,7 +36,6 @@ const CheckoutPage = () => {
   const [form] = Form.useForm();
   const { showtimeId, roomId } = useParams();
   const [searchParams] = useSearchParams();
-  const hour = searchParams.get("hour");
   const movieId = searchParams.get("movieId");
   const userId = useAuthSelector((s) => s.user?._id);
   const user = useAuthSelector((s) => s.user);
@@ -261,9 +261,18 @@ const CheckoutPage = () => {
                         <div className="flex items-center gap-3">
                           <ScheduleOutlined className="text-red-500" />
                           <div>
-                            <p className="text-slate-600 m-0">Ngày giờ chiếu</p>
-                            <p className="font-bold text-slate-900 m-0">
-                              {hour}
+                            <p className="text-slate-600 m-0!">
+                              Ngày giờ chiếu
+                            </p>
+                            <p className="font-bold text-slate-900 m-0!">
+                              {dayjs(showtimeRes?.data?.startTime).format(
+                                `HH:mm `,
+                              )}
+                            </p>
+                            <p className="font-bold text-slate-900 m-0!">
+                              {dayjs(showtimeRes?.data?.startTime).format(
+                                `DD/MM/YYYY `,
+                              )}
                             </p>
                           </div>
                         </div>
